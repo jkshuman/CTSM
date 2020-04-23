@@ -68,6 +68,7 @@ module CLMFatesInterfaceMod
    use clm_varpar        , only : nlevdecomp_full
    use PhotosynthesisMod , only : photosyns_type
    use atm2lndType       , only : atm2lnd_type
+   use SFMainMod         , only : sfmain_type
    use SurfaceAlbedoType , only : surfalb_type
    use SolarAbsorbedType , only : solarabs_type
    use SoilBiogeochemCarbonFluxType, only :  soilbiogeochem_carbonflux_type
@@ -562,7 +563,7 @@ contains
    subroutine dynamics_driv(this, nc, bounds_clump,      &
          atm2lnd_inst, soilstate_inst, temperature_inst, &
          waterstate_inst, canopystate_inst, soilbiogeochem_carbonflux_inst, &
-         frictionvel_inst )
+         frictionvel_inst, sfmain_inst )
     
       ! This wrapper is called daily from clm_driver
       ! This wrapper calls ed_driver, which is the daily dynamics component of FATES
@@ -580,9 +581,11 @@ contains
       type(canopystate_type)  , intent(inout)        :: canopystate_inst
       type(soilbiogeochem_carbonflux_type), intent(inout) :: soilbiogeochem_carbonflux_inst
       type(frictionvel_type)  , intent(inout)        :: frictionvel_inst
+      type(sfmain_type)       , intent(in)           :: sfmain_inst
 
       ! !LOCAL VARIABLES:
       integer  :: s                        ! site index
+      integer  :: g                        ! grid-cell index (HLM)
       integer  :: c                        ! column index (HLM)
       integer  :: ifp                      ! patch index
       integer  :: p                        ! HLM patch index
@@ -635,6 +638,8 @@ contains
       do s=1,this%fates(nc)%nsites
 
          c = this%f2hmap(nc)%fcolumn(s)
+         g = col%gridcell(c)
+         this%fates(nc)%bc_in(s)%lightning24 = sfmain_inst%lnfm24(g)
 
          nlevsoil = this%fates(nc)%bc_in(s)%nlevsoil
 

@@ -293,6 +293,8 @@ contains
     use controlMod            , only : NLFilename
     use clm_instMod           , only : clm_fates
     use BalanceCheckMod       , only : BalanceCheckInit
+    use SFMainMod             , only : FATESFireInit
+
     !
     ! !ARGUMENTS    
     !
@@ -473,6 +475,9 @@ contains
        end if
     else
        call SatellitePhenologyInit(bounds_proc)
+       if (use_fates) then
+          call FATESFireInit(bounds_proc, NLFilename)
+       end if
     end if
 
     if(use_soil_moisture_streams) then 
@@ -604,6 +609,9 @@ contains
 
     if (use_crop) then
        call crop_inst%initAccVars(bounds_proc)
+    end if
+    if (use_fates) then
+       call sfmain_inst%initAccVars(bounds_proc)
     end if
 
     !------------------------------------------------------------       

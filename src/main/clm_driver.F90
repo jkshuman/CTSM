@@ -108,9 +108,12 @@ contains
     ! the calling tree is given in the description of this module.
     !
     ! !USES:
+
     use clm_time_manager     , only : get_curr_date
     use clm_varctl           , only : use_lai_streams
     use SatellitePhenologyMod, only : lai_advance
+    use SFMainMod            , only : FATESFireInterp
+
     !
     ! !ARGUMENTS:
     implicit none
@@ -395,6 +398,8 @@ contains
        end if
        call bgc_vegetation_inst%InterpFileInputs(bounds_proc)
        call t_stopf('bgc_interp')
+    else if (use_fates) then
+       call FATESFireInterp(bounds_proc)
     end if
 
     ! Get time varying urban data
@@ -904,7 +909,7 @@ contains
           call clm_fates%dynamics_driv( nc, bounds_clump,                        &
                atm2lnd_inst, soilstate_inst, temperature_inst,                   &
                waterstate_inst, canopystate_inst, soilbiogeochem_carbonflux_inst,&
-               frictionvel_inst)
+               frictionvel_inst, sfmain_inst)
           
           ! TODO(wjs, 2016-04-01) I think this setFilters call should be replaced by a
           ! call to reweight_wrapup, if it's needed at all.
@@ -1131,6 +1136,9 @@ contains
        if (use_crop) then
           call crop_inst%CropUpdateAccVars(bounds_proc, &
                temperature_inst%t_ref2m_patch, temperature_inst%t_soisno_col)
+       end if
+       if (use_fates) then
+          call sfmain_inst%UpdateAccVars(bounds_proc)
        end if
 
        call t_stopf('accum')
