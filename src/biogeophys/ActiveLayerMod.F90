@@ -254,7 +254,9 @@ contains
          begc => bounds%begc, &
          endc => bounds%endc  &
          )
-
+    ! force ALT to active for output
+    active_if_cn = 'active'
+      
     if (use_cn) then
        active_if_cn = 'active'
     else
